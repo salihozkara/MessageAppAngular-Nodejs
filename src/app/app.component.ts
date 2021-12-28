@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import * as CryptoJS from 'crypto-js';
+import { SPN16 } from './helpers/cryptHelper';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'frontend';
+  constructor() {
+    
+  }
+
 }
