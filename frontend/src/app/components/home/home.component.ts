@@ -31,23 +31,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public phone: string;
   public currentUser: User;
   public selectedUser: User;
-
+  public selectedEncryptType: number=1;
   public userList: User[];
   fileName: string;
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
-      let message = new Message();
-      message.userId = this.currentUser.id;
-      message.receiverId = this.selectedUser.id;
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        message.message = { fileName: file.name, file: reader.result };
-        message.messageType = MessageType.file;
-        message.messageHasher = MessageHasher.SPN16;
-        this.messageAdd(message);
-        this.chatService.sendMessage(message);
+        this.send(
+          { fileName: file.name, file: reader.result },
+          MessageType.file
+        );
       };
     }
   }
@@ -115,15 +111,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   sendMessage(): void {
-    let message = new Message();
-    message.userId = this.currentUser.id;
-    message.receiverId = this.selectedUser.id;
-    message.message = this.messageText;
-    message.messageType = MessageType.string;
-    message.messageHasher = MessageHasher.SHA256;
-    this.messageAdd(message);
-    this.chatService.sendMessage(message);
-
+    this.send(this.messageText, MessageType.string);
     this.messageText = '';
+  }
+  send(message: any, type: MessageType) {
+    let m = new Message();
+    m.userId = this.currentUser.id;
+    m.receiverId = this.selectedUser.id;
+    m.message = message;
+    m.messageType = type;
+    m.messageHasher = Number(this.selectedEncryptType);
+    this.messageAdd(m);
+    this.chatService.sendMessage(m);
   }
 }
