@@ -170,11 +170,17 @@ export class SPN16 {
 export class SHA256 {
   static encrypt(text: string, publicKey: string) {
     const rsa = Forge.pki.publicKeyFromPem(publicKey);
-    return (rsa.encrypt(text));
+    //text=lz.compress(text)
+    text=rsa.encrypt(text)
+    text=lz.compress(text)
+    return text;
   }
   static decrypt(text: string, privateKey: string) {
     console.log(text)
     const rsa = Forge.pki.privateKeyFromPem(privateKey);
-    return rsa.decrypt((text));
+    text=lz.decompress(text)
+    let result=rsa.decrypt(text)
+    //result=lz.decompress(result)
+    return result;
   }
 }
