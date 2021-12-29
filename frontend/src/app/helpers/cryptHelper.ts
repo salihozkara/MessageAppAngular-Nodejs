@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import CompressHelper from './compressHelper';
 import * as Forge from 'node-forge';
+import * as lz from 'lz-string'
 
 function objeToB64(obje: any): string {
   obje = { result: obje };
@@ -169,10 +170,11 @@ export class SPN16 {
 export class SHA256 {
   static encrypt(text: string, publicKey: string) {
     const rsa = Forge.pki.publicKeyFromPem(publicKey);
-    return CompressHelper.compress(rsa.encrypt(text));
+    return (rsa.encrypt(text));
   }
   static decrypt(text: string, privateKey: string) {
+    console.log(text)
     const rsa = Forge.pki.privateKeyFromPem(privateKey);
-    return rsa.decrypt(CompressHelper.decompress(text));
+    return rsa.decrypt((text));
   }
 }

@@ -1,14 +1,11 @@
-import { users } from './../../data/users';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
 import Message, {
-  MessageHasher,
   MessageType,
 } from 'src/app/models/messageModel';
 import User from 'src/app/models/userModel';
 import { ChatService } from 'src/app/services/chat.service';
-import { KeyService } from 'src/app/services/key.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({

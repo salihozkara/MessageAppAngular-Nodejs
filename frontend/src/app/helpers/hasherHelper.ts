@@ -3,42 +3,66 @@ import { KeyService } from '../services/key.service';
 import Message, { MessageHasher, MessageType } from './../models/messageModel';
 import { SHA256, SPN16 } from './cryptHelper';
 export default class HasherHelper {
-  static Decrypt(message: Message): string {
+  static Decrypt(message: Message): Message {
     switch (message.messageHasher) {
       case MessageHasher.SPN16:
         if (message.messageType == MessageType.string)
-          return SPN16.Messagedecrypt(message.message, KeyService.getKey());
+          message.message = SPN16.Messagedecrypt(
+            message.message,
+            KeyService.getKey()
+          );
         else if (message.messageType == MessageType.file)
-          return SPN16.FileDecrypt(message.message, KeyService.getKey());
+          message.message.file = SPN16.FileDecrypt(
+            message.message,
+            KeyService.getKey()
+          );
         break;
       case MessageHasher.SHA256:
-        return SHA256.decrypt(
-          message.message,
-          UserService.currentUser.privatekeypem
-        );
+        if (message.messageType == MessageType.string)
+          message.message = SHA256.decrypt(
+            message.message,
+            UserService.currentUser.privatekeypem
+          );
+        else if (message.messageType == MessageType.file)
+          message.message.file = SHA256.decrypt(
+            message.message.file,
+            UserService.currentUser.privatekeypem
+          );
         break;
       default:
         break;
     }
-    return '';
+    return message;
   }
-  static Encrypt(message: Message): string {
+  static Encrypt(message: Message): Message {
     switch (message.messageHasher) {
       case MessageHasher.SPN16:
         if (message.messageType == MessageType.string)
-          return SPN16.Messageencrypt(message.message, KeyService.getKey());
+          message.message = SPN16.Messageencrypt(
+            message.message,
+            KeyService.getKey()
+          );
         else if (message.messageType == MessageType.file)
-          return SPN16.FileEncrypt(message.message, KeyService.getKey());
+          message.message.file = SPN16.FileEncrypt(
+            message.message,
+            KeyService.getKey()
+          );
         break;
       case MessageHasher.SHA256:
-        return SHA256.encrypt(
-          message.message,
-          UserService.GetUserPublicKey(message.receiverId)
-        );
+        if (message.messageType == MessageType.string)
+          message.message = SHA256.encrypt(
+            message.message,
+            UserService.GetUserPublicKey(message.receiverId)
+          );
+        else if (message.messageType == MessageType.file)
+          message.message.file = SHA256.encrypt(
+            message.message.file,
+            UserService.GetUserPublicKey(message.receiverId)
+          );
         break;
       default:
         break;
     }
-    return '';
+    return message;
   }
 }

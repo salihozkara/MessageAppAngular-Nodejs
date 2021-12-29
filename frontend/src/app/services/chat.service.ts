@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import HasherHelper from '../helpers/hasherHelper';
-import Message, { MessageType } from '../models/messageModel';
+import Message from '../models/messageModel';
 
 @Injectable({
   providedIn: 'root',
@@ -22,14 +22,16 @@ export class ChatService {
   }
 
   sendMessage(message: Message): void {
-    message.message = HasherHelper.Encrypt(message);
+    HasherHelper.Encrypt(message);
     this.socket.emit('message', message);
   }
 
   getMessage(): Observable<Message> {
     return new Observable<Message>((observer) => {
       this.socket.on('new message', (data: Message) => {
-        data.message = HasherHelper.Decrypt(data);
+        console.log(data)
+        HasherHelper.Decrypt(data);
+        console.log(data)
         observer.next(data);
       });
 
