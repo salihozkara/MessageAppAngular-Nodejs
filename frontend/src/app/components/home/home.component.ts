@@ -1,3 +1,4 @@
+import { users } from './../../data/users';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
@@ -7,6 +8,7 @@ import Message, {
 } from 'src/app/models/messageModel';
 import User from 'src/app/models/userModel';
 import { ChatService } from 'src/app/services/chat.service';
+import { KeyService } from 'src/app/services/key.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -41,10 +43,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        message.message ={fileName:file.name,file:reader.result} ;
+        message.message = { fileName: file.name, file: reader.result };
         message.messageType = MessageType.file;
         message.messageHasher = MessageHasher.SPN16;
-        this.messageAdd(message)
+        this.messageAdd(message);
         this.chatService.sendMessage(message);
       };
     }
@@ -70,6 +72,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.currentUser = this.userList.find(
       (user) => user.id.toString() == this.phone
     );
+    UserService.currentUser = this.currentUser;
     this.userList = this.userList.filter(
       (user) => user.id.toString() != this.phone
     );
@@ -80,17 +83,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.join(this.currentUser.id, this.roomId);
       this.chatService.getMessage().subscribe((data: Message) => {
         setTimeout(() => {
-          console.log(data)
-          if (data.messageType == MessageType.file) {
-            console.log('file:', data.message);
-          }
           this.messageAdd(data);
         }, 500);
       });
     }
   }
   private messageAdd(data: Message) {
-    let message=Object.assign({},data)
+    let message = Object.assign({}, data);
     this.messageArray.push(message);
     let temp = this.messageArray;
     this.messageArray = [];
@@ -121,10 +120,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     message.receiverId = this.selectedUser.id;
     message.message = this.messageText;
     message.messageType = MessageType.string;
-    message.messageHasher = MessageHasher.SPN16;
-    this.messageAdd(message)
+    message.messageHasher = MessageHasher.SHA256;
+    this.messageAdd(message);
     this.chatService.sendMessage(message);
-    
+
     this.messageText = '';
   }
 }

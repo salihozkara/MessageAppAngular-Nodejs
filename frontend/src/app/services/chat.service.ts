@@ -10,7 +10,6 @@ import Message, { MessageType } from '../models/messageModel';
 export class ChatService {
   private socket: Socket;
   private url = 'http://localhost:3000'; // your server local path
-  private key = 'mysecret';
 
   constructor() {
     this.socket = io(this.url, {
@@ -31,8 +30,6 @@ export class ChatService {
     return new Observable<Message>((observer) => {
       this.socket.on('new message', (data: Message) => {
         data.message = HasherHelper.Decrypt(data);
-
-        console.log(data);
         observer.next(data);
       });
 

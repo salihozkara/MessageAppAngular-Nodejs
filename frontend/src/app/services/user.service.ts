@@ -7,9 +7,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
+  static GetUserPublicKey(receiverId: number): string {
+    return users.find(u=>u.id==receiverId).publickeypem;
+  }
 
   constructor() { }
-
+  static currentUser:User
   getUsers(): Observable<User[]>{
     return new Observable<User[]>(o=>{
       o.next(users)

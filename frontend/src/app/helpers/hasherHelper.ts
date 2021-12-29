@@ -1,3 +1,4 @@
+import { UserService } from 'src/app/services/user.service';
 import { KeyService } from '../services/key.service';
 import Message, { MessageHasher, MessageType } from './../models/messageModel';
 import { SHA256, SPN16 } from './cryptHelper';
@@ -10,9 +11,12 @@ export default class HasherHelper {
         else if (message.messageType == MessageType.file)
           return SPN16.FileDecrypt(message.message, KeyService.getKey());
         break;
-case MessageHasher.SHA256:
-    //return SHA256.decrypt(message.message,KeyService.getKey())
-    break
+      case MessageHasher.SHA256:
+        return SHA256.decrypt(
+          message.message,
+          UserService.currentUser.privatekeypem
+        );
+        break;
       default:
         break;
     }
@@ -26,7 +30,12 @@ case MessageHasher.SHA256:
         else if (message.messageType == MessageType.file)
           return SPN16.FileEncrypt(message.message, KeyService.getKey());
         break;
-
+      case MessageHasher.SHA256:
+        return SHA256.encrypt(
+          message.message,
+          UserService.GetUserPublicKey(message.receiverId)
+        );
+        break;
       default:
         break;
     }
