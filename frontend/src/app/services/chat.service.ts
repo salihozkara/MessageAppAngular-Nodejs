@@ -23,19 +23,16 @@ export class ChatService {
   }
 
   sendMessage(message: Message): void {
-    //console.log('send:', message);
-    if (message.messageType == MessageType.string)
-      message.message = HasherHelper.Encrypt(message);
+    message.message = HasherHelper.Encrypt(message);
     this.socket.emit('message', message);
   }
 
   getMessage(): Observable<Message> {
     return new Observable<Message>((observer) => {
       this.socket.on('new message', (data: Message) => {
-        if (data.messageType == MessageType.string) {
-          data.message = HasherHelper.Decrypt(data);
-        }
-        console.log(data)
+        data.message = HasherHelper.Decrypt(data);
+
+        console.log(data);
         observer.next(data);
       });
 

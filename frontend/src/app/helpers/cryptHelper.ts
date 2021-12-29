@@ -1,4 +1,7 @@
-import { Buffer } from "buffer"
+
+import { Buffer } from "buffer";
+import CompressHelper from './compressHelper';
+import * as Forge from 'node-forge';
 
  function objeToB64( obje:any ):string {
   obje={result:obje};
@@ -66,34 +69,53 @@ export class SPN16{
         }
         return bin_xor;
     }
-    
-    static encrypt = (text:any,key:string)=>{
+    static FileEncrypt(base64:string,key:string){
+        let result = this.encrypt(base64, key);
+        return result;
+    }
+    static Messageencrypt = (text:string,key:string)=>{
         text=objeToB64(text)
+        let result = this.encrypt(text, key);
+        return result;
+    }
+    private static encrypt(text: string, key: string) {
+        text = JSON.stringify(text) + " ";
         key = this.string2Binary(key);
         let cipherText = "";
-        let bin_plainText = this.string2Binary(text)
-        let data = bin_plainText
+        let bin_plainText = this.string2Binary(text);
+        let data = bin_plainText;
         let xor_text = "";
-        let s_Boxes ="";
-        for( let i = 0; i<bin_plainText.length; i+=16){
-            data = bin_plainText.substring(i,i+16)
-            for(let j = 0; j < 64; j+=16){
-                xor_text = this.xor(data,key.substring(j,j+16))
-    
-                if (j<32) {
-                    s_Boxes = this.substitution(xor_text)
+        let s_Boxes = "";
+        for (let i = 0; i < bin_plainText.length; i += 16) {
+            data = bin_plainText.substring(i, i + 16);
+            for (let j = 0; j < 64; j += 16) {
+                xor_text = this.xor(data, key.substring(j, j + 16));
+
+                if (j < 32) {
+                    s_Boxes = this.substitution(xor_text);
                 }
-                else{
-                    s_Boxes = xor_text
+                else {
+                    s_Boxes = xor_text;
                 }
-                data = s_Boxes
+                data = s_Boxes;
             }
             cipherText += data;
         }
-        return cipherText
+        return CompressHelper.compress(cipherText);
     }
-    
-    static decrypt = (text:string,key:string)=>{
+
+    static FileDecrypt(base64:string,key:string){
+        let result=this.decrypt(base64,key)
+        try {
+            result=JSON.parse(result)
+        } catch (error) {
+            console.log(result)
+            result=JSON.parse(result.substring(0,result.length-2))
+        }
+        return result;
+    }
+    private static decrypt(text:string,key:string){
+        text=CompressHelper.decompress(text)
         let s_Boxes ="";
         key = this.string2Binary(key);
         let cipher_Text = text;
@@ -116,9 +138,29 @@ export class SPN16{
             }
             plain_Text += data;
         }
-        return b64ToObje(this.binary2String(plain_Text))
+        let result =this.binary2String(plain_Text)
+        return result
+    }
+    static Messagedecrypt = (text:string,key:string)=>{
+        let result=this.decrypt(text,key)
+        return b64ToObje(result)
     }
     
     
     
+}
+
+export class SHA256{
+
+    static encrypt(text:string,publicKey:string){
+        
+        const rsa = Forge.pki.publicKeyFromPem(publicKey);
+        return window.btoa(rsa.encrypt(text.toString()));
+        return ""
+    }
+    static decrypt(text:string,privateKey:string){
+      
+    return ""
+}
+
 }
