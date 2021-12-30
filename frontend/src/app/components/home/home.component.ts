@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private userService: UserService
   ) {}
   public roomId: string;
-  public messageText: string="";
+  public messageText: string = '';
   public messageArray: Message[] = [];
   public fileToUpload: File | null = null;
   public showScreen = false;
@@ -32,6 +32,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
+      if (file.size > 100000) {
+        alert('Dosya boyutu 100kb tı geçemez');
+        return;
+      }
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -107,8 +112,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   sendMessage(): void {
     if (this.messageText.length > 0)
-      this.send(this.messageText, MessageType.string);
-    this.messageText = '';
+      if (this.messageText.length < 1000) {
+        this.send(this.messageText, MessageType.string);
+        this.messageText = '';
+      } else alert('Mesaj karakter sınırı 1000 karakter');
   }
   send(message: any, type: MessageType) {
     let m = new Message();
