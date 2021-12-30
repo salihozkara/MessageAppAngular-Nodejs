@@ -1,8 +1,12 @@
 <div class="container-fluid" *ngIf="showScreen">
   <label>Encrypt algorithm:</label>
-  <select name="encrypt" style="margin-left:10px;margin-top:-10px" [(ngModel)]=selectedEncryptType>
-    <option value=0>SPN16</option>
-    <option value=1>SH256</option>
+  <select
+    name="encrypt"
+    style="margin-left: 10px; margin-top: -10px"
+    [(ngModel)]="selectedEncryptType"
+  >
+    <option value="0">SPN16</option>
+    <option value="1">SH256</option>
   </select>
   <div class="row">
     <div class="col-md-4">
@@ -30,7 +34,7 @@
             <p class="username">{{ selectedUser?.name }}</p>
           </div>
 
-          <div class="chat-body" style="overflow: scroll !important;">
+          <div class="chat-body">
             <div
               *ngFor="
                 let item of messageArray | messageFilter: selectedUser?.id

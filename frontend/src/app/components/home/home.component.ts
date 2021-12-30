@@ -1,9 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
-import Message, {
-  MessageType,
-} from 'src/app/models/messageModel';
+import Message, { MessageType } from 'src/app/models/messageModel';
 import User from 'src/app/models/userModel';
 import { ChatService } from 'src/app/services/chat.service';
 import { UserService } from 'src/app/services/user.service';
@@ -21,14 +19,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private userService: UserService
   ) {}
   public roomId: string;
-  public messageText: string;
+  public messageText: string="";
   public messageArray: Message[] = [];
   public fileToUpload: File | null = null;
   public showScreen = false;
   public phone: string;
   public currentUser: User;
   public selectedUser: User;
-  public selectedEncryptType: number=1;
+  public selectedEncryptType: number = 1;
   public userList: User[];
   fileName: string;
   onFileSelected(event: any) {
@@ -108,7 +106,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   sendMessage(): void {
-    this.send(this.messageText, MessageType.string);
+    if (this.messageText.length > 0)
+      this.send(this.messageText, MessageType.string);
     this.messageText = '';
   }
   send(message: any, type: MessageType) {
