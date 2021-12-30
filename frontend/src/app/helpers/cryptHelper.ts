@@ -1,22 +1,14 @@
 import { Buffer } from 'buffer';
 import CompressHelper from './compressHelper';
 import * as Forge from 'node-forge';
-import * as lz from 'lz-string'
 
 function objeToB64(obje: any): string {
-  obje = { result: obje };
-  return Buffer.from(JSON.stringify(obje)).toString('base64') + ' ';
+  return Buffer.from(obje).toString('base64') + ' ';
 }
 
 function b64ToObje(b64: string): any {
   let message = Buffer.from(b64, 'base64').toString('utf8');
-  let result: string;
-  try {
-    result = JSON.parse(message).result;
-  } catch (error) {
-    result = JSON.parse(message.substring(0, message.length - 1)).result;
-  }
-  return result;
+  return message;
 }
 
 export class SPN16 {
@@ -92,17 +84,19 @@ export class SPN16 {
     }
     return bin_xor;
   }
-  static FileEncrypt(base64: string, key: string) {
-    let result = this.encrypt(base64, key);
+  static FileEncrypt(text: string, key: string) {
+    let result = this.encrypt(text, key);
     return result;
   }
   static Messageencrypt = (text: string, key: string) => {
     text = objeToB64(text);
     let result = this.encrypt(text, key);
+    result = CompressHelper.compress(result);
+
     return result;
   };
   private static encrypt(text: string, key: string) {
-    text = JSON.stringify(text) + ' ';
+    text = JSON.stringify({ data: text }) + ' ';
     key = this.string2Binary(key);
     let cipherText = '';
     let bin_plainText = this.string2Binary(text);
@@ -123,20 +117,16 @@ export class SPN16 {
       }
       cipherText += data;
     }
-    return CompressHelper.compress(cipherText);
+    return cipherText;
   }
 
-  static FileDecrypt(base64: string, key: string) {
-    let result = this.decrypt(base64, key);
-    try {
-      result = JSON.parse(result);
-    } catch (error) {
-      result = JSON.parse(result.substring(0, result.length - 2));
-    }
+  static FileDecrypt(text: string, key: string) {
+    console.log(text);
+    let result = this.decrypt(text, key);
+    console.log(result);
     return result;
   }
   private static decrypt(text: string, key: string) {
-    text = CompressHelper.decompress(text);
     let s_Boxes = '';
     key = this.string2Binary(key);
     let cipher_Text = text;
@@ -158,29 +148,44 @@ export class SPN16 {
       }
       plain_Text += data;
     }
-    let result = this.binary2String(plain_Text);
-    return result;
+    let result: any = this.binary2String(plain_Text);
+    try {
+      result = JSON.parse(result);
+    } catch (error) {
+      let lastIndex = result.lastIndexOf('}');
+      console.log(result.substring(0, lastIndex + 1));
+      result = JSON.parse(result.substring(0, lastIndex + 1));
+    }
+    return result.data;
   }
   static Messagedecrypt = (text: string, key: string) => {
+    text = CompressHelper.decompress(text);
     let result = this.decrypt(text, key);
     return b64ToObje(result);
   };
 }
 
 export class SHA256 {
+  private static splitString = '(|&';
   static encrypt(text: string, publicKey: string) {
     const rsa = Forge.pki.publicKeyFromPem(publicKey);
-    //text=lz.compress(text)
-    text=rsa.encrypt(text)
-    text=lz.compress(text)
+    let textArray = text.match(/.{1,100}/g);
+    let result = '';
+    textArray.forEach((t) => {
+      result += rsa.encrypt(t) + this.splitString;
+    });
+    text = CompressHelper.compress(result);
     return text;
   }
   static decrypt(text: string, privateKey: string) {
-    console.log(text)
+    text = CompressHelper.decompress(text);
+    let result = '';
     const rsa = Forge.pki.privateKeyFromPem(privateKey);
-    text=lz.decompress(text)
-    let result=rsa.decrypt(text)
-    //result=lz.decompress(result)
+    let textArray = text.split(this.splitString);
+    textArray=textArray.filter(t=>t.length>0)
+    textArray.forEach((t) => {
+      result += rsa.decrypt(t);
+    });
     return result;
   }
 }

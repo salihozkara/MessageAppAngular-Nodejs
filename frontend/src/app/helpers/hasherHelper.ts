@@ -13,7 +13,7 @@ export default class HasherHelper {
           );
         else if (message.messageType == MessageType.file)
           message.message.file = SPN16.FileDecrypt(
-            message.message,
+            message.message.file,
             KeyService.getKey()
           );
         break;
@@ -44,7 +44,7 @@ export default class HasherHelper {
           );
         else if (message.messageType == MessageType.file)
           message.message.file = SPN16.FileEncrypt(
-            message.message,
+            message.message.file,
             KeyService.getKey()
           );
         break;

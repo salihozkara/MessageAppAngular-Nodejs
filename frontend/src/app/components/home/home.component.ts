@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public roomId: string;
   public messageText: string;
   public messageArray: Message[] = [];
-  fileToUpload: File | null = null;
+  public fileToUpload: File | null = null;
   public showScreen = false;
   public phone: string;
   public currentUser: User;

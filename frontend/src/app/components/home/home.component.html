@@ -30,7 +30,7 @@
             <p class="username">{{ selectedUser?.name }}</p>
           </div>
 
-          <div class="chat-body">
+          <div class="chat-body" style="overflow: scroll !important;">
             <div
               *ngFor="
                 let item of messageArray | messageFilter: selectedUser?.id
