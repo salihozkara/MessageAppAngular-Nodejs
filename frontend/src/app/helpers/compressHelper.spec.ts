@@ -6,7 +6,7 @@ describe('CompressHelper', () => {
       TestBed.configureTestingModule({});
     
     });
-    it("result equel",()=>{
+    it("compres and decompress",()=>{
         let testString="merhaba bu bir test mesajı"
         expect(CompressHelper.decompress(CompressHelper.compress(testString))).toEqual(testString)
     })

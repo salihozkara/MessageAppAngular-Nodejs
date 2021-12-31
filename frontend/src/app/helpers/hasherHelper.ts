@@ -1,6 +1,7 @@
 import { UserService } from 'src/app/services/user.service';
 import { KeyService } from '../services/key.service';
 import Message, { MessageHasher, MessageType } from './../models/messageModel';
+import CompressHelper from './compressHelper';
 import { SHA256, SPN16 } from './cryptHelper';
 export default class HasherHelper {
   static Decrypt(message: Message): Message {
@@ -13,7 +14,7 @@ export default class HasherHelper {
           );
         else if (message.messageType == MessageType.file)
           message.message.file = SPN16.FileDecrypt(
-            message.message.file,
+            CompressHelper.decompress(message.message.file),
             KeyService.getKey()
           );
         break;
@@ -25,7 +26,7 @@ export default class HasherHelper {
           );
         else if (message.messageType == MessageType.file)
           message.message.file = SHA256.decrypt(
-            message.message.file,
+            CompressHelper.decompress(message.message.file),
             UserService.currentUser.privatekeypem
           );
         break;
@@ -43,10 +44,10 @@ export default class HasherHelper {
             KeyService.getKey()
           );
         else if (message.messageType == MessageType.file)
-          message.message.file = SPN16.FileEncrypt(
+          message.message.file = CompressHelper.compress(SPN16.FileEncrypt(
             message.message.file,
             KeyService.getKey()
-          );
+          ))
         break;
       case MessageHasher.SHA256:
         if (message.messageType == MessageType.string)
@@ -55,10 +56,10 @@ export default class HasherHelper {
             UserService.GetUserPublicKey(message.receiverId)
           );
         else if (message.messageType == MessageType.file)
-          message.message.file = SHA256.encrypt(
+          message.message.file = CompressHelper.compress(SHA256.encrypt(
             message.message.file,
             UserService.GetUserPublicKey(message.receiverId)
-          );
+          ))
         break;
       default:
         break;

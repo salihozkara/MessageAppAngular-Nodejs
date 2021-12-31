@@ -10,7 +10,7 @@ export class UserService {
   static GetUserPublicKey(receiverId: number): string {
     return users.find(u=>u.id==receiverId).publickeypem;
   }
-
+  // mesaj listesi için kullanıcıları çekiyoruz
   constructor() { }
   static currentUser:User
   getUsers(): Observable<User[]>{

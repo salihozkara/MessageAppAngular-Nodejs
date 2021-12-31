@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
-import CompressHelper from './compressHelper';
 import * as Forge from 'node-forge';
+import CompressHelper from './compressHelper';
 
-function objeToB64(obje: any): string {
+export function objeToB64(obje: any): string {
   return Buffer.from(obje).toString('base64') + ' ';
 }
 
@@ -91,7 +91,7 @@ export class SPN16 {
   static Messageencrypt = (text: string, key: string) => {
     text = objeToB64(text);
     let result = this.encrypt(text, key);
-    result = CompressHelper.compress(result);
+    //result = CompressHelper.compress(result);
 
     return result;
   };
@@ -159,7 +159,7 @@ export class SPN16 {
     return result.data;
   }
   static Messagedecrypt = (text: string, key: string) => {
-    text = CompressHelper.decompress(text);
+    //text = CompressHelper.decompress(text);
     let result = this.decrypt(text, key);
     return b64ToObje(result);
   };
@@ -168,24 +168,30 @@ export class SPN16 {
 export class SHA256 {
   private static splitString = '(|&';
   static encrypt(text: string, publicKey: string) {
+    text=objeToB64(text)
     const rsa = Forge.pki.publicKeyFromPem(publicKey);
     let textArray = text.match(/.{1,100}/g);
     let result = '';
     textArray.forEach((t) => {
       result += rsa.encrypt(t) + this.splitString;
     });
-    text = CompressHelper.compress(result);
-    return text;
+    //result = CompressHelper.compress(result);
+    return result;
   }
   static decrypt(text: string, privateKey: string) {
-    text = CompressHelper.decompress(text);
+    //text = CompressHelper.decompress(text);
     let result = '';
     const rsa = Forge.pki.privateKeyFromPem(privateKey);
     let textArray = text.split(this.splitString);
     textArray=textArray.filter(t=>t.length>0)
     textArray.forEach((t) => {
-      result += rsa.decrypt(t);
+      try {
+        result += rsa.decrypt(t);
+      } catch (error) {
+        console.log(t,error)
+      }
     });
+    result=b64ToObje(result)
     return result;
   }
 }

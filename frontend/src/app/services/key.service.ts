@@ -5,8 +5,8 @@ import * as Forge from 'node-forge';
 })
 export class KeyService {
   constructor() {}
-  static getKey = () => 'mysecret';
-  static createKeysPem() {
+  static getKey = () => 'mysecret'; // spn16 nın keyi
+  static createKeysPem() { //sha256 keyi üreten fonksiyon
     let keys = Forge.pki.rsa.generateKeyPair();
     let publicKeyPem = Forge.pki.publicKeyToPem(keys.publicKey);
     let privateKeyPem = Forge.pki.privateKeyToPem(keys.privateKey);

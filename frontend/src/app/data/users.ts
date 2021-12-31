@@ -1,5 +1,5 @@
 import User from 'src/app/models/userModel';
-
+// userları statik olarak burada public ve private keyleriyle birlikte tutuyoruz
 export const users: User[] = [
   {
     id: 1,

@@ -1,6 +1,8 @@
+import { KeyService } from './../../services/key.service';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { saveAs } from 'file-saver';
+import { objeToB64, SHA256, SPN16 } from 'src/app/helpers/cryptHelper';
 import Message, { MessageType } from 'src/app/models/messageModel';
 import User from 'src/app/models/userModel';
 import { ChatService } from 'src/app/services/chat.service';
@@ -20,6 +22,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
   public roomId: string;
   public messageText: string = '';
+  public encrypteMessage: string = '';
   public messageArray: Message[] = [];
   public fileToUpload: File | null = null;
   public showScreen = false;
@@ -109,12 +112,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
   join(userId: number, roomId: string): void {
     this.chatService.joinRoom({ user: userId, room: roomId });
   }
-
+  onKeyUp(x:KeyboardEvent) {
+    this.onChange()
+  }
+  onChange(){
+    if (this.selectedEncryptType == 0)
+    this.encrypteMessage = objeToB64(SPN16.FileEncrypt(this.messageText, KeyService.getKey()));
+  else if (this.selectedEncryptType == 1)
+    this.encrypteMessage = SHA256.encrypt(this.messageText, this.selectedUser.publickeypem);
+  }
   sendMessage(): void {
     if (this.messageText.length > 0)
       if (this.messageText.length < 1000) {
         this.send(this.messageText, MessageType.string);
         this.messageText = '';
+        this.encrypteMessage=''
       } else alert('Mesaj karakter sınırı 1000 karakter');
   }
   send(message: any, type: MessageType) {
